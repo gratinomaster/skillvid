@@ -3,8 +3,8 @@ name: editor-viral
 description: >-
   Orienta a edição de vídeos curtos e verticais (TikTok, Reels, Shorts e YouTube)
   para maximizar retenção, cliques e compartilhamentos, incluindo decisões de corte,
-  ritmo, legendas, áudio e animações quando necessárias. Use sempre que o usuário
-  pedir para "editar", "cortar", "deixar viral", "fazer um reel/short", criar
+  ritmo, legendas laranjas, áudio e animações quando necessárias. Use sempre que o
+  usuário pedir para "editar", "cortar", "deixar viral", "fazer um reel/short", criar
   legendas dinâmicas, adicionar animações, transições ou efeitos em um vídeo.
 ---
 
@@ -29,7 +29,8 @@ Se o usuário não informou, pergunte (ou assuma e declare o pressuposto):
 | Objetivo | entretenimento, ensino, venda, engajamento | retenção |
 | Duração final | alvo em segundos | 30–45 s |
 | Estilo | calmo, energético, caótico, minimalista, "podcast" | energético e limpo |
-| Identidade | cores, fonte, logo, handle | sem marca definida |
+| Identidade | cores, fonte, logo, handle | laranja `#FF8A00` como cor da marca |
+| Cor da legenda | cor principal e de destaque | **laranja** (padrão fixo, ver §4) |
 
 Sempre que usar uma suposição, cite-a no início da resposta para o usuário
 conseguir corrigir.
@@ -80,16 +81,28 @@ conseguir corrigir.
 
 ---
 
-## 4. Legendas (o maior fator de retenção)
+## 4. Legendas laranjas (o maior fator de retenção)
 
-- **1–3 palavras por bloco**, no máximo 7. Palavra-chave em destaque (cor ou
-  tamanho diferente).
+**Regra fixa: toda legenda é laranja.** Branco é exceção, usado apenas dentro
+de caixa escura quando o laranja não tiver contraste. A cor vira identidade
+visual: o espectador reconhece o vídeo pelo laranja no feed.
+
+### Paleta obrigatória
+
+| Uso | Hex | ASS (`&HAABBGGRR`) | Quando |
+|---|---|---|---|
+| Legenda padrão | `#FF8A00` | `&H00008AFF` | 100% das falas |
+| Palavra-chave / destaque | `#FFB020` | `&H0020B0FF` | termos que vendem a promessa |
+| Contorno / caixa | `#0D0D0D` | `&H000D0D0D` | sempre, para separar do fundo |
+
+- **1–3 palavras por bloco**, no máximo 7. Palavra-chave em destaque:
+  **laranja mais claro e/ou maior** (nunca mude para outra cor).
 - Fonte sem serifa e **bold** (ex.: Montserrat, Inter, Anton). Tamanho mínimo
   ~48 px em 1080x1920.
 - Posição: faixa inferior, acima da área de interface (deixe ~15% livre em
   baixo e ~10% no topo).
-- Estilo: texto branco + contorno/preto ou caixa semitransparente. Nada de
-  sombra pesada.
+- Contraste: laranja com **contorno preto de 4–5 px** ou caixa preta a ~70%.
+  Nada de sombra pesada. Se o fundo for claro/laranja, use a caixa escura.
 - Sincronize com a fala; se houver música, alinhe a entrada da palavra ao beat.
 - Prefira ASS/SRT para edição e converta para bitmap somente se a plataforma
   não renderizar.
@@ -107,14 +120,17 @@ PlayResY: 1920
 
 [V4+ Styles]
 Format: Name,Fontname,Fontsize,PrimaryColour,OutlineColour,BorderStyle,Outline,Shadow,Alignment,MarginV,Bold
-Style: Default,Montserrat,64,&H00FFFFFF,&H00101010,1,4,0,2,220,-1
-Style: Hi,Montserrat,76,&H00FFE100,&H00101010,1,5,0,2,220,-1
+Style: Default,Montserrat,64,&H00008AFF,&H000D0D0D,1,5,0,2,220,-1
+Style: Hi,Montserrat,76,&H0020B0FF,&H000D0D0D,1,5,0,2,220,-1
 
 [Events]
 Format: Layer,Start,End,Style,Text
 Dialogue: 0,0:00:00.20,0:00:01.10,Hi,{\fscx110\fscy110}NÃO FAÇA ISSO{\r}
 Dialogue: 0,0:00:01.12,0:00:02.40,Default,Faça assim.
 ```
+
+> Memória ASS: a cor é `&HAABBGGRR` (alpha, azul, verde, vermelho). Para
+> `#FF8A00` → `&H00008AFF`. Em `drawtext`/ffmpeg use `0xFF8A00` (RGB).
 
 ---
 
@@ -128,7 +144,7 @@ algo importante, é ruído.
 | Situação | Animação indicada | Duração típica |
 |---|---|---|
 | Número, dado ou estatística | contagem / pop de escala | 300–600 ms |
-| Palavra-chave da fala | pop + leve destaque de cor | 150–250 ms |
+| Palavra-chave da fala | pop + legenda laranja mais clara (`#FFB020`) | 150–250 ms |
 | Revelação / "antes e depois" | wipe, slide ou reveal | 350–500 ms |
 | Mudança de tema ou bloco | transição curta (fade/xfade) | 200–400 ms |
 | Direcionar o olhar | seta, círculo ou sublinhado desenhado | 250–400 ms |
@@ -173,12 +189,12 @@ ffmpeg -i a.mp4 -i b.mp4 -filter_complex \
 
 # Texto cinético com fade + subida (pop suave via alpha e posição)
 ffmpeg -i in.mp4 -vf \
-"drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='VIRAL':fontsize=96:fontcolor=white:x='(w-text_w)/2':y='h*0.62-(t-1)*120':alpha='if(lt(t,1),0,if(lt(t,1.3),(t-1)/0.3,if(gt(t,2.2),max(0,1-(t-2.2)/0.3),1)))':enable='between(t,1,2.5)'" \
+"drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='VIRAL':fontsize=96:fontcolor=0xFF8A00:x='(w-text_w)/2':y='h*0.62-(t-1)*120':alpha='if(lt(t,1),0,if(lt(t,1.3),(t-1)/0.3,if(gt(t,2.2),max(0,1-(t-2.2)/0.3),1)))':enable='between(t,1,2.5)'" \
 out.mp4
 
 # Contador de 0 a 100 em 1s (o enable limita a contagem)
 ffmpeg -i in.mp4 -vf \
-"drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='%{eif\\:t*100\\:d}':fontsize=110:fontcolor=0x00E1FF:x='(w-text_w)/2':y='(h-text_h)/2':enable='between(t,3,4)'" \
+"drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='%{eif\\:t*100\\:d}':fontsize=110:fontcolor=0xFFB020:x='(w-text_w)/2':y='(h-text_h)/2':enable='between(t,3,4)'" \
 out.mp4
 
 # Shake sutil ( erro/contraste )
@@ -246,7 +262,8 @@ Sempre use `-pix_fmt yuv420p` e `-movflags +faststart` para compatibilidade.
 - [ ] Promessa clara até 3 s.
 - [ ] Pelo menos um pattern interrupt a cada 2–3 s.
 - [ ] Sem silêncios > 0,5 s (salvo intenção dramática).
-- [ ] Legendas corretas, com palavras-chave em destaque e dentro da safe area.
+- [ ] Legendas **laranjas** (`#FF8A00`), palavras-chave em laranja claro
+      (`#FFB020`), contorno preto e dentro da safe area.
 - [ ] Áudio em ~-14 LUFS, música abaixo da voz, sem clipes.
 - [ ] Animações têm propósito, duração curta e não competem entre si.
 - [ ] Payoff entrega o que a promessa anunciou.
@@ -258,7 +275,8 @@ Sempre use `-pix_fmt yuv420p` e `-movflags +faststart` para compatibilidade.
 ## 9. Erros comuns a evitar
 
 - Abrir com introdução longa ou logos → perde o gancho.
-- Legenda pequena, fina ou com sombra pesada → ilegível no celular.
+- Legenda pequena, fina, branca ou com sombra pesada → perde a identidade e a
+  leitura no celular. Laranja sem contorno também some em fundos claros.
 - Música alta demais → voz ininteligível.
 - Efeitos grátis em excesso → parecer amador e cansar.
 - Cortar a resposta antes do payoff → frustra e mata a retenção.
@@ -273,7 +291,8 @@ Ao finalizar, entregue:
 
 1. **Resumo criativo**: gancho, promessa e payoff escolhidos.
 2. **Arquivo final**: caminho do vídeo exportado.
-3. **Decisões de edição**: cortes principais, ritmo e animações aplicadas (e por quê).
+3. **Decisões de edição**: cortes principais, ritmo, animações aplicadas (e por
+   quê) e confirmação de que as legendas estão em laranja.
 4. **Versões para teste A/B**: pelo menos 2 ganchos alternativos sugeridos.
 5. **Métricas a acompanhar**: retenção em 3 s, % assistido até o fim,
    compartilhamentos e salvamentos.
